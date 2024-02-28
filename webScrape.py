@@ -1,36 +1,38 @@
 import requests
-import sys
+import csv
 from bs4 import BeautifulSoup
 
-URL = "https://www.amazon.in/Columbia-Mens-wind-\ 
-resistant-Glove/dp/B0772WVHPS/?_encoding=UTF8&pd_rd\ 
-_w=d9RS9&pf_rd_p=3d2ae0df-d986-4d1d-8c95-aa25d2ade606&pf\ 
-_rd_r=7MP3ZDYBBV88PYJ7KEMJ&pd_rd_r=550bec4d-5268-41d5-\ 
-87cb-8af40554a01e&pd_rd_wg=oy8v8&ref_=pd_gw_cr_cartx&th=1"
-webPage = requests.get(URL)
+url = 'https://www.amazon.com/Lenovo-Tab-P11-Plus-1st/dp/B09B17DVYR/ref=sr_1_2?qid=1695021332&rnid=16225007011&s=computers-intl-ship&sr=1-2&th=1'
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
+}
+response = requests.get(url, headers=HEADERS)
 
+if response.status_code == 200:
+    soup = BeautifulSoup(response.text, 'html.parser')
+    print(response.status_code)
 
-soup = BeautifulSoup(webPage.content, 'html.parser')
+    # Extract data here
+    title_element = soup.find('span', id='productTitle')
+    title = title_element.get_text(strip=True) if title_element else 'Title not found'
+    print(f'Title: {title}')
 
-print(soup)
+    description_element = soup.find('div', id='productDescription')
+    description = description_element.get_text() if description_element else 'Description not found'
+    print(f'Description: {description}')
 
-def product(soup)
-  data_str = ""
-  productInfo = []
-   for item in soup.find_all("ul", class_="a-unorderedlist a-nostyle\a-vertical a-spacing-none detail-bullet-list"):
-     data_str = data_str + item.get_text() 
-     productInfo.append(data_str.split("\n")) 
-      data_str = ""
-  return productInfo
+    price_element = soup.find('span', class_='a-price-whole')
+    price = price_element.get_text(strip=True) if price_element else 'Price not found'
+    print(f'Price: {price}')
+    
+    with open('product_data.csv', mode='w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['Title', 'Price', 'Description'])
+        writer.writerow([title, price, description])
 
-productResult = product(soup)
-for item in pro_result: 
-    for j in item: 
-        if j is "": 
-            pass
-        else: 
-            print(j)
-
+    print('Data has been saved to product_data.csv')
+else:
+    print(str(response.status_code)+' - Error loading the page')
   
 
 
